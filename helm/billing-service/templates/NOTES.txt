@@ -1,0 +1,30 @@
+1. Приложение доступно по пути:
+{{- if .Values.ingress.enabled }}
+{{- range $host := .Values.ingress.hosts }}
+  {{- range .paths }}
+  http{{ if $.Values.ingress.tls }}s{{ end }}://{{ $host.host }}{{ .path }}
+  {{- end }}
+{{- end }}
+2. Для удаления chart используйте команду
+helm uninstall {{ include "billing-service.fullname" . }}
+Так как включены хуки на ресурсы, то при удалении chart, helm уже не сможет удалить ресурсы. Для полной очистки
+необходимо выполнить следующие команды.
+{{- end }}
+
+kubectl delete svc {{ include "billing-service.fullname" . }}-postgresql -n {{ .Release.Namespace }} && \
+kubectl delete svc {{ include "billing-service.fullname" . }}-postgresql-hl -n {{ .Release.Namespace }} && \
+kubectl delete statefulset {{ include "billing-service.fullname" . }}-postgresql -n {{ .Release.Namespace }} && \
+kubectl delete networkpolicies {{ include "billing-service.fullname" . }}-postgresql -n {{ .Release.Namespace }} && \
+kubectl delete pvc data-{{ include "billing-service.fullname" . }}-postgresql-0 -n {{ .Release.Namespace }} && \
+kubectl delete pv --all -n {{ .Release.Namespace }} && \
+kubectl delete serviceaccounts {{ include "billing-service.fullname" . }}-postgresql -n {{ .Release.Namespace }} && \
+kubectl delete secrets {{ include "billing-service.fullname" . }} -n {{ .Release.Namespace }} && \
+kubectl delete secrets {{ include "billing-service.fullname" . }}-postgresql -n {{ .Release.Namespace }} && \
+kubectl delete serviceaccounts {{ include "billing-service.serviceAccountName" . }} -n {{ .Release.Namespace }} && \
+kubectl delete clusterrolebinding {{ include "billing-service.serviceAccountName" . }} -n {{ .Release.Namespace }} && \
+kubectl delete clusterrole {{ include "billing-service.serviceAccountName" . }} -n {{ .Release.Namespace }}
+NB!
+Команду "kubectl delete pv --all -n {{ .Release.Namespace }} " выполнять с умом, так как удалить все PV
+
+Если приложение было развернуто в отдельном namespace, то можно выполнить
+"kubectl delete namespace {{ .Release.Namespace }}" - удаление всего namespace

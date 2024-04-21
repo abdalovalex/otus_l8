@@ -1,0 +1,6 @@
+**/.git
+**/.idea
+**/.mvn
+**/*.md
+**/Dockerfile
+**/application-*.yaml

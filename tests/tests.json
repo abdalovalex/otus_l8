@@ -1,0 +1,608 @@
+{
+	"info": {
+		"_postman_id": "cfbb037e-7c2c-4203-ba2c-55a94d5a3d81",
+		"name": "otus_l8",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Добавить счет",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.set(\"account\", pm.variables.replaceIn('{{$randomBankAccount}}'))"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Добавить счет\", function () {",
+							"    pm.expect(pm.response.code).to.eq(201)",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"account\": \"{{account}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/billing-service/account/create",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"billing-service",
+						"account",
+						"create"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Добавить уже существующий счет (идемпотентность)",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Добавить уже существующий счет (идемпотентность)\", function () {",
+							"    pm.expect(pm.response.code).to.eq(400)",
+							"    ",
+							"    let expectData = \"Счет уже создан\"",
+							"    let actualData = pm.response.json()",
+							"",
+							"    pm.expect(actualData.message).to.eql(expectData)",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"account\": \"{{account}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/billing-service/account/create",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"billing-service",
+						"account",
+						"create"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Положить деньги на счет",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.set(\"billingHash\", pm.variables.replaceIn('{{$guid}}'))"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Положить деньги на счет\", function () {",
+							"    pm.expect(pm.response.code).to.eq(200)",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"account\": \"{{account}}\",\n    \"amount\": 1000,\n    \"hash\": \"{{billingHash}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/billing-service/account/put",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"billing-service",
+						"account",
+						"put"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Положить деньги на счет (идемпотентность)",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Положить деньги на счет (идемпотентность)\", function () {",
+							"    pm.expect(pm.response.code).to.eq(400)",
+							"    ",
+							"    let expectData = \"Операция уже была выполнена\"",
+							"    let actualData = pm.response.json()",
+							"",
+							"    pm.expect(actualData.message).to.eql(expectData)",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"account\": \"{{account}}\",\n    \"amount\": 1000,\n    \"hash\": \"{{billingHash}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/billing-service/account/put",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"billing-service",
+						"account",
+						"put"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Получить баланс",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Получить баланс\", function () {",
+							"    pm.expect(pm.response.code).to.eq(200)",
+							"",
+							"    let actualData = pm.response.json()",
+							"",
+							"    pm.expect(actualData.account).to.eql(pm.collectionVariables.get(\"account\"))",
+							"    pm.expect(actualData.balance).to.eql(1000)",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/billing-service/account/{{account}}",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"billing-service",
+						"account",
+						"{{account}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Создать заказ 1",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.set(\"orderHash\", pm.variables.replaceIn('{{$guid}}'))"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Создать заказ 1\", function () {",
+							"    pm.expect(pm.response.code).to.eq(201)",
+							"",
+							"    pm.collectionVariables.set(\"idOrderOne\", pm.response.text())",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"account\": \"{{account}}\",\n    \"amount\": 1000,\n    \"hash\": \"{{orderHash}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/order-service/order/create",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"order-service",
+						"order",
+						"create"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Создать заказ 1 (идемпотентность)",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Создать заказ 1 (идемпотентность)\", function () {",
+							"    pm.expect(pm.response.code).to.eq(400)",
+							"    ",
+							"    let expectData = \"Заказ уже был создан\"",
+							"    let actualData = pm.response.json()",
+							"",
+							"    pm.expect(actualData.message).to.eql(expectData)",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"account\": \"{{account}}\",\n    \"amount\": 1000,\n    \"hash\": \"{{orderHash}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/order-service/order/create",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"order-service",
+						"order",
+						"create"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Получить баланс",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Получить баланс\", function () {",
+							"    pm.expect(pm.response.code).to.eq(200)",
+							"    ",
+							"    let actualData = pm.response.json()",
+							"",
+							"    pm.expect(actualData.account).to.eql(pm.collectionVariables.get(\"account\"))",
+							"    pm.expect(actualData.balance).to.eql(0)",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"setTimeout(() => {}, 2000); "
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/billing-service/account/{{account}}",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"billing-service",
+						"account",
+						"{{account}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Получить письмо по заказу 1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Получить письмо по заказу 1\", function () {",
+							"    pm.expect(pm.response.code).to.eq(200)",
+							"    ",
+							"    let actualData = pm.response.json()",
+							"    let exceptData = \"Заказ \" + pm.collectionVariables.get(\"idOrderOne\") + \" оплачен\"",
+							"",
+							"    pm.expect(actualData.text).to.eql(exceptData)",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/notification-service/notification/{{idOrderOne}}",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"notification-service",
+						"notification",
+						"{{idOrderOne}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Создать заказ 2",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.set(\"orderHash\", pm.variables.replaceIn('{{$guid}}'))"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Создать заказ 2\", function () {",
+							"    pm.expect(pm.response.code).to.eq(201)",
+							"",
+							"    pm.collectionVariables.set(\"idOrderTwo\", pm.response.text())",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"account\": \"{{account}}\",\n    \"amount\": 1000,\n    \"hash\": \"{{orderHash}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/order-service/order/create",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"order-service",
+						"order",
+						"create"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Получить баланс",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Получить баланс\", function () {",
+							"    pm.expect(pm.response.code).to.eq(200)",
+							"    ",
+							"    let actualData = pm.response.json()",
+							"",
+							"    pm.expect(actualData.account).to.eql(pm.collectionVariables.get(\"account\"))",
+							"    pm.expect(actualData.balance).to.eql(0)",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"setTimeout(() => {}, 2000); "
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/billing-service/account/{{account}}",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"billing-service",
+						"account",
+						"{{account}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Получить письмо по заказу 2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Получить письмо по заказу 2\", function () {",
+							"    pm.expect(pm.response.code).to.eq(200)",
+							"    ",
+							"    let actualData = pm.response.json()",
+							"    let exceptData = \"Для заказа \" + pm.collectionVariables.get(\"idOrderTwo\") + \" необходимо пополнить счет\"",
+							"",
+							"    pm.expect(actualData.text).to.eql(exceptData)",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/notification-service/notification/{{idOrderTwo}}",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"notification-service",
+						"notification",
+						"{{idOrderTwo}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "url",
+			"value": "http://arch.homework",
+			"type": "default"
+		}
+	]
+}

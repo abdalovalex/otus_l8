@@ -1,0 +1,49 @@
+server:
+  port: 8000
+  servlet:
+    context-path: /notification-service
+
+logging:
+  level:
+    org:
+      springframework:
+        cloud: error
+
+spring:
+  application:
+    name: notification-service
+
+  main:
+    banner-mode: off
+
+  datasource:
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate.globally_quoted_identifiers: true
+
+  config:
+    import: "optional:kubernetes:"
+  cloud:
+    kubernetes:
+      reload:
+        enabled: true
+        strategy: refresh
+      config:
+        fail-fast: true
+      secrets:
+        fail-fast: true
+    function:
+      definition: positive;negative
+    stream:
+      bindings:
+        positive-in-0:
+          destination: approvedOrderTransaction
+          group: notification
+        negative-in-0:
+          destination: rejectedOrderTransaction
+          group: notification

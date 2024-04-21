@@ -1,0 +1,92 @@
+replicaCount: 1
+minReadySeconds: 1
+
+env: prod
+
+image:
+  repository: abdalovlalex/l8-order-service-app
+  pullPolicy: IfNotPresent
+  tag: v1
+
+resources:
+  limits:
+    cpu: 1
+    memory: 300Mi
+
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  automount: true
+  annotations:
+    "helm.sh/hook": pre-install, pre-upgrade
+    "helm.sh/hook-weight": "-5"
+  name: ""
+
+clusterRole:
+  rules:
+    - apiGroups: [ "" ]
+      resources: [ "configmaps", "secrets" ]
+      verbs: [ "get", "list", "watch" ]
+
+kafka:
+  brokers:
+    [ "kafka-service.abdalovalex-l8-kafka:9092" ]
+
+configMap:
+  create: true
+  applicationData:
+    logging:
+      level:
+        org:
+          springframework:
+            cloud: info
+
+podAnnotations: { }
+podLabels: { }
+
+service:
+  type: NodePort
+  port: 80
+  containerPort: 8000
+  targetPort: 8000
+
+ingress:
+  enabled: true
+  className: "nginx"
+  hosts:
+    - host: arch.homework
+      paths:
+        - path: /order-service
+          pathType: Prefix
+secrets:
+  - name: DB_USERNAME
+    key: username
+  - name: DB_PASSWORD
+    key: password
+
+livenessProbe:
+  httpGet:
+    path: /order-service/actuator/health/liveness
+    port: http
+readinessProbe:
+  httpGet:
+    path: /order-service/actuator/health/readiness
+    port: http
+
+postgresql:
+  enabled: true
+  global:
+    postgresql:
+      auth:
+        database: "order-service"
+        username: "order-service"
+        password: "password"
+      service:
+        ports:
+          postgresql: "5432"
+  commonAnnotations:
+    "helm.sh/hook": pre-install, post-delete
+    "helm.sh/hook-weight": "-10"
+    "helm.sh/hook-delete-policy": before-hook-creation

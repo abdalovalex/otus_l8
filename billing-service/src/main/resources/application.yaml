@@ -1,0 +1,87 @@
+server:
+  port: 8000
+  servlet:
+    context-path: /billing-service
+
+logging:
+  level:
+    org:
+      springframework:
+        cloud: error
+
+spring:
+  application:
+    name: billing-service
+
+  main:
+    banner-mode: off
+
+  datasource:
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate.globally_quoted_identifiers: true
+
+  config:
+    import: "optional:kubernetes:"
+  cloud:
+    kubernetes:
+      reload:
+        enabled: true
+        strategy: refresh
+      config:
+        fail-fast: true
+      secrets:
+        fail-fast: true
+    function:
+      definition: topology;order
+    stream:
+      bindings:
+        order-in-0:
+          destination: order
+        order-out-0:
+          destination: bankTransaction
+
+        topology-in-0:
+          destination: bankTransaction
+        topology-out-0:
+          destination: processedTransaction
+        topology-out-1:
+          destination: approvedOrderTransaction
+        topology-out-2:
+          destination: rejectedOrderTransaction
+      kafka:
+        streams:
+          bindings:
+            order-in-0:
+              consumer:
+                application-id: billingServiceOrder
+                key-serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+                value-serde: org.example.billingservice.converter.ConverterOrder
+            topology-in-0:
+              consumer:
+                application-id: billingServiceTopic
+                key-serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+                value-serde: org.example.billingservice.converter.ConverterBankTransaction
+          binder:
+            configuration:
+              application.server: localhost:8000
+              commit:
+                interval.ms: 1000
+        bindings:
+          bankTransaction:
+            consumer:
+              start-offset: earliest
+            producer:
+              configuration:
+                key.serializer: org.apache.kafka.common.serialization.StringSerializer
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: kafkastreamstopology
