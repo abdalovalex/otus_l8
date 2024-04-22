@@ -49,8 +49,8 @@ public class BillingConfiguration {
     @Bean
     public Function<KStream<String, BankTransactionEvent>, KStream<String, BankTransactionEvent>> topology() {
         return input -> {
-            Predicate<String, BankTransactionEvent> isSuccess = (k, v) -> State.APPROVED.equals(v.getState());
-            Predicate<String, BankTransactionEvent> isFailed = (k, v) -> State.REJECTED.equals(v.getState());
+            Predicate<String, BankTransactionEvent> isSuccess = (k, v) -> v != null && State.APPROVED.equals(v.getState());
+            Predicate<String, BankTransactionEvent> isFailed = (k, v) -> v != null && State.REJECTED.equals(v.getState());
 
             KStream<String, BankTransactionEvent> balance = input
                     .groupByKey()

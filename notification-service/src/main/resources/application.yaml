@@ -47,3 +47,12 @@ spring:
         negative-in-0:
           destination: rejectedOrderTransaction
           group: notification
+springwolf:
+  docket:
+    base-package: org.example.notificationservice
+    info:
+      title: notification-service
+      version: 1
+    servers:
+      kafka:
+        protocol: kafka

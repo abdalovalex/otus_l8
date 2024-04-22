@@ -6,12 +6,12 @@ env: prod
 image:
   repository: abdalovlalex/l8-notification-service-app
   pullPolicy: IfNotPresent
-  tag: v1
+  tag: v2
 
 resources:
   limits:
     cpu: 1
-    memory: 300Mi
+    memory: 600Mi
 
 nameOverride: ""
 fullnameOverride: ""

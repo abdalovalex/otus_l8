@@ -28,15 +28,25 @@ public class OrderService {
     public Integer create(OrderDTO orderDTO) throws OrderException {
         final Order order = orderMapper.map(orderDTO);
 
-        if (orderRepository.existsByHash(order.getHash())) {
-            throw new OrderException("Заказ уже был создан");
+        Order orderByHash = findOrderByHash(order.getHash());
+        if (orderByHash != null) {
+            return orderByHash.getId();
         }
 
-        Integer orderId = transactionTemplate.execute(status -> {
-            order.setStatus(OrderStatus.PENDING);
-            orderRepository.save(order);
-            return order.getId();
-        });
+        Integer orderId = null;
+        try {
+            orderId = transactionTemplate.execute(status -> {
+                order.setStatus(OrderStatus.PENDING);
+                orderRepository.save(order);
+                
+                return order.getId();
+            });
+        } catch (Exception e) {
+            orderByHash = findOrderByHash(order.getHash());
+            if (orderByHash != null) {
+                return orderByHash.getId();
+            }
+        }
 
         if (orderId == null) {
             throw new OrderException("Не удалось создать заказ");
@@ -59,5 +69,9 @@ public class OrderService {
                                   .setHeader(KafkaHeaders.KEY, operationEvent.getOrderId().toString())
                                   .build());
         return orderId;
+    }
+
+    private Order findOrderByHash(String hash) {
+        return orderRepository.findByHash(hash).orElse(null);
     }
 }

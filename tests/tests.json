@@ -56,7 +56,7 @@
 			"response": []
 		},
 		{
-			"name": "Добавить уже существующий счет (идемпотентность)",
+			"name": "Добавить уже существующий счет",
 			"event": [
 				{
 					"listen": "prerequest",
@@ -71,7 +71,7 @@
 					"listen": "test",
 					"script": {
 						"exec": [
-							"pm.test(\"Добавить уже существующий счет (идемпотентность)\", function () {",
+							"pm.test(\"Добавить уже существующий счет\", function () {",
 							"    pm.expect(pm.response.code).to.eq(400)",
 							"    ",
 							"    let expectData = \"Счет уже создан\"",
@@ -177,12 +177,7 @@
 					"script": {
 						"exec": [
 							"pm.test(\"Положить деньги на счет (идемпотентность)\", function () {",
-							"    pm.expect(pm.response.code).to.eq(400)",
-							"    ",
-							"    let expectData = \"Операция уже была выполнена\"",
-							"    let actualData = pm.response.json()",
-							"",
-							"    pm.expect(actualData.message).to.eql(expectData)",
+							"    pm.expect(pm.response.code).to.eq(200)",
 							"});"
 						],
 						"type": "text/javascript"
@@ -321,12 +316,9 @@
 					"script": {
 						"exec": [
 							"pm.test(\"Создать заказ 1 (идемпотентность)\", function () {",
-							"    pm.expect(pm.response.code).to.eq(400)",
-							"    ",
-							"    let expectData = \"Заказ уже был создан\"",
-							"    let actualData = pm.response.json()",
+							"    pm.expect(pm.response.code).to.eq(201)",
 							"",
-							"    pm.expect(actualData.message).to.eql(expectData)",
+							"    pm.expect(pm.collectionVariables.get(\"idOrderOne\")).to.eql(pm.response.text())",
 							"});"
 						],
 						"type": "text/javascript"

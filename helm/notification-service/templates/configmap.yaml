@@ -21,5 +21,10 @@ data:
           kafka:
             binder:
               brokers:
-                {{ .Values.kafka.brokers}}
+                {{ .Values.kafka.brokers }}
+    springwolf:
+      docket:
+        servers:
+          kafka:
+            host: {{ first .Values.kafka.brokers }}
 {{- end }}

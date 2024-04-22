@@ -50,17 +50,21 @@ public class BillingService {
                 .orElseThrow(() -> new AccountException("Счет не найден"));
 
         if (operationRepository.existsByHash(incomeMoneyDTO.getHash())) {
-            throw new AccountException("Операция уже была выполнена");
+            return;
         }
 
-        transactionTemplate.execute(status -> {
-            Operation operation = operationMapper.map(incomeMoneyDTO);
-            operation.setAccount(account);
-            operation.setType(Type.INFLOW);
-            operationRepository.save(operation);
+        try {
+            transactionTemplate.execute(status -> {
+                Operation operation = operationMapper.map(incomeMoneyDTO);
+                operation.setAccount(account);
+                operation.setType(Type.INFLOW);
+                operationRepository.save(operation);
 
-            return status;
-        });
+                return status;
+            });
+        } catch (Exception e) {
+            return;
+        }
 
         BankTransactionEvent operationEvent = BankTransactionEvent.builder()
                 .account(account.getAccount())

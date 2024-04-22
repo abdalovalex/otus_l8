@@ -79,6 +79,15 @@ spring:
             producer:
               configuration:
                 key.serializer: org.apache.kafka.common.serialization.StringSerializer
+springwolf:
+  docket:
+    base-package: org.example.billingservice
+    info:
+      title: billing-service
+      version: 1
+    servers:
+      kafka:
+        protocol: kafka
 
 management:
   endpoints:

@@ -67,6 +67,17 @@
             <artifactId>mapstruct</artifactId>
             <version>${mapstruct.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>io.github.springwolf</groupId>
+            <artifactId>springwolf-cloud-stream</artifactId>
+            <version>1.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.springwolf</groupId>
+            <artifactId>springwolf-ui</artifactId>
+            <version>1.1.0</version>
+        </dependency>
     </dependencies>
     <dependencyManagement>
         <dependencies>
